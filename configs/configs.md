@@ -13,7 +13,13 @@ Use the JetBrains account sync.
 To install dependencies:
 
 ```powershell
-winget install sharkdp.fd
-winget install junegunn.fzf
-winget install BurntSushi.ripgrep.MSVC
+winget install sharkdp.fd junegunn.fzf BurntSushi.ripgrep.MSVC
 ```
+
+## Helix
+
+Copy helix\ to C:\Users\<name>\AppData\Roaming\
+
+## Wezterm
+
+Copy .wezterm.lua to C:\Users\<name>\
