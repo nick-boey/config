@@ -1,7 +1,0 @@
-2025/05/03-08:10:14.727 2cad Reusing MANIFEST /home/nick/.config/BraveSoftware/Brave-Browser/Default/IndexedDB/https_imgur.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/05/03-08:10:14.728 2cad Recovering log #4
-2025/05/03-08:10:14.728 2cad Reusing old log /home/nick/.config/BraveSoftware/Brave-Browser/Default/IndexedDB/https_imgur.com_0.indexeddb.leveldb/000004.log 
-2025/05/03-08:10:14.773 2cac Level-0 table #8: started
-2025/05/03-08:10:14.775 2cac Level-0 table #8: 3406 bytes OK
-2025/05/03-08:10:14.777 2cac Delete type=0 #4
-2025/05/03-08:10:14.778 2cac Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)
