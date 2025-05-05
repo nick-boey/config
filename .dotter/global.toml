@@ -1,0 +1,14 @@
+[helpers]
+
+[default]
+depends = []
+
+[default.files]
+"README.md" = ""
+configs = ""
+"install.ps1" = ""
+
+[default.variables]
+
+[settings]
+default_target_type = "automatic"
