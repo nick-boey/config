@@ -1,17 +1,5 @@
-[helpers]
+# See `linux.toml` for more settings to add on Windows
 
-[default]
-depends = []
-
-[default.files]
-"README.md" = ""
-configs = ""
-"install.ps1" = ""
-
-[default.variables]
-
-[settings]
-default_target_type = "automatic"
-
+# Windows settings
 [nvim.files]
 nvim = "~/AppData/Local/nvim"
