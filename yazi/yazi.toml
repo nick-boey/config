@@ -1,2 +1,15 @@
 [manager]
 show_hidden = true
+show_symlink = true
+
+[opener]
+edit = [
+  { run = 'nvim "$@"', block = true, for = "unix" },
+  { run = "nvim %*", block = true, for = "windows" },
+]
+
+[open]
+rules = [
+  { mime = "text/*", use = "edit" },
+]
+
