@@ -12,3 +12,6 @@ configs = ""
 
 [settings]
 default_target_type = "automatic"
+
+[nvim.files]
+nvim = "~/AppData/Local/nvim"
