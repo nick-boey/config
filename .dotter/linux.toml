@@ -1,0 +1,32 @@
+# TODO
+# Helix
+
+[gh.files]
+gh = "~/.config/gh"
+
+[hypr.files]
+hypr = "~/.config/hypr"
+
+[kitty.files]
+kitty = "~/.config/kitty"
+
+[lazygit.files]
+lazygit = "~/.config/lazygit"
+
+[nvim.files]
+nvim = "~/.config/nvim"
+
+[wal.files]
+wal = "~/.config/wal"
+
+[waybar.files]
+waybar = "~/.config/waybar"
+
+[yay.files]
+yay = "~/.config/yay"
+
+[yazi.files]
+yazi = "~/.config/yazi"
+
+[zed.files]
+zed = "~/.config/zed"
