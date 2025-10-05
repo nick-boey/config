@@ -3,3 +3,9 @@
 # Windows settings
 [nvim.files]
 nvim = "~/AppData/Local/nvim"
+
+[yazi.files]
+yazi = "~/AppData/yazi/config"
+
+[helix.files]
+helix = "~/AppData/Roaming/helix"
