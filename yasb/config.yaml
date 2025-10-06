@@ -44,14 +44,14 @@ bars:
         - "komorebi_active_layout"
         - "active_window"
       center:
+        - "weather"
         - "clock"
         - "pomodoro"
       right:
         - "media"
-        - "weather"
         - "microphone"
         - "volume"
-        - "notifications"
+        - "battery"
         - "power_menu"
 widgets:
   home:
@@ -129,7 +129,7 @@ widgets:
   clock:
     type: "yasb.clock.ClockWidget"
     options:
-      label: "{%a, %d %b %H:%M}"
+      label: "{%a, %d %b %I:%M %p}"
       label_alt: "{%A, %d %B %Y %H:%M}"
       timezones: []
       calendar:
@@ -180,10 +180,10 @@ widgets:
     options:
       label: "<span>{icon}</span> {temp}"
       label_alt: "{location}: Min {min_temp}, Max {max_temp}, Humidity {humidity}"
-      api_key: env
+      api_key: "5fbc482ee4b54b2790e40312250610"
       update_interval: 600
       hide_decimal: true
-      location: env
+      location: "Sydney, Australia"
       callbacks:
         on_left: "toggle_card"
         on_middle: "do_nothing"
@@ -246,6 +246,14 @@ widgets:
         on_left: "toggle_mute"
         on_middle: "toggle_label"
         on_right: "exec cmd.exe /c start ms-settings:sound"
+  battery:
+    type: "yasb.battery.BatteryWidget"
+    options:
+      label: "<span>{icon}</span>{percent}%"
+      label_alt: "<span>{icon}</span> {percent}% | time: {time_remaining}"
+      #hide_unsupported: true
+      charging_options:
+        icon_format: "{charging_icon}"
   power_menu:
     type: "yasb.power_menu.PowerMenuWidget"
     options:
