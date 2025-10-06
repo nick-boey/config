@@ -12,7 +12,7 @@ For more information about configuration options, please visit the Wiki https://
     --text2: #b8b8b8;
     --text3: #b8b8b8;
     --text4: #2F2F2F;
-    --bg-color1: #202020;
+    --bg-color1: rgba(0, 0, 0, 0.4);
     --bg-color2: #2F2F2F;
 }
 * {

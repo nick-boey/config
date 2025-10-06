@@ -20,10 +20,10 @@ bars:
       enabled: true
       duration: 400
     blur_effect:
-      enabled: false
+      enabled: true
       acrylic: false
-      dark_mode: false
-      round_corners: false
+      dark_mode: true
+      round_corners: true
       round_corners_type: "normal"
       border_color: "system"
     window_flags:
@@ -133,8 +133,8 @@ widgets:
       label_alt: "{%A, %d %B %Y %H:%M}"
       timezones: []
       calendar:
-        blur: false
-        round_corners: false
+        blur: true
+        round_corners: true
         alignment: "center"
         direction: "down"
       callbacks:
@@ -205,8 +205,8 @@ widgets:
         thunderstormNight: "\ue338"
         default: "\uebaa"
       weather_card:
-        blur: false
-        round_corners: false
+        blur: true
+        round_corners: true
         alignment: "right"
         direction: "down"
         icon_size: 64
