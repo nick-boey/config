@@ -1,20 +1,15 @@
 # Configurations
 
-Repository containing all personal configuration information
+My configuration files.
 
 ## Software installation
 
 ### Windows
 
-Installing all new software:
+Use `winget import` and the `winget-export.json` file to install
+all software on a new machine.
 
-```powershell
-winget install JetBrains.Rider Microsoft.PowerToys Microsoft.VisualStudioCode
-```
-
-## Colour scheme
-
-Personal colour scheme based on sunset imagery.
+## WIP - Sunset colour scheme
 
 - #191919 - Background colour
 - #BCE3Df - Light blue
@@ -26,5 +21,4 @@ Personal colour scheme based on sunset imagery.
 ## TODO
 
 - [ ] Add Rider configuration
-- [ ] Add YASB configuration
-
+- [ ] Update `install.ps1` using `winget export` command
