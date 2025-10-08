@@ -1563,7 +1563,7 @@
           "matching_strategy": "StartsWith"
         }
       ]
-     ]
+    ]
   },
   "Microsoft Teams": {
     "tray_and_multi_window": [
@@ -3227,6 +3227,15 @@
       {
         "kind": "Exe",
         "id": "Zoom.exe",
+        "matching_strategy": "Equals"
+      }
+    ]
+  },
+  "Bluebeam": {
+    "tray_and_multi_window": [
+      {
+        "kind": "Exe",
+        "id": "Revu.exe",
         "matching_strategy": "Equals"
       }
     ]
