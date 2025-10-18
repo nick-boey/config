@@ -3239,5 +3239,14 @@
         "matching_strategy": "Equals"
       }
     ]
+  },
+  "Beagle": {
+    "ignore": [
+    {
+    "kind": "Exe",
+    "id": "Applications.Retriever.exe",
+    "matching_strategy": "Equals"
   }
+  ]
+}
 }
