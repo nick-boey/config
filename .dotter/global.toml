@@ -18,3 +18,6 @@ komorebi = "~/"
 
 [whkd.files]
 whkd = "~/.config"
+
+[wezterm.files]
+wezterm = "~"
