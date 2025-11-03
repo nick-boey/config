@@ -2,7 +2,7 @@ local wezterm = require 'wezterm'
 
 local config = wezterm.config_builder()
 
-config.default_prog = { 'pwsh.exe', 'NoLogo'}
+config.default_prog = { 'pwsh.exe' }
 
 config.color_scheme = 'JetBrains Darcula'
 config.colors = {
