@@ -5,7 +5,7 @@
 nvim = "~/AppData/Local/nvim"
 
 [yazi.files]
-yazi = "~/AppData/yazi/config"
+yazi = "~/AppData/Roaming/yazi/config"
 
 [helix.files]
 helix = "~/AppData/Roaming/helix"
