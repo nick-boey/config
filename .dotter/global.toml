@@ -21,3 +21,9 @@ whkd = "~/.config"
 
 [wezterm.files]
 wezterm = "~"
+
+[powershell.files]
+powershell = "~/Documents/PowerShell"
+
+[ohmyposh.files]
+ohmyposh = "~/.omp"
