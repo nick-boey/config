@@ -1,23 +1,11 @@
-# See `linux.toml` for more settings to add on Windows
+[gh.files]
+gh = "~/.config/gh"
 
-# Windows settings
+[lazygit.files]
+lazygit = "~/.config/lazygit"
+
 [nvim.files]
-nvim = "~/AppData/Local/nvim"
+nvim = "~/.config/nvim"
 
 [yazi.files]
-yazi = "~/AppData/Roaming/yazi/config"
-
-[helix.files]
-helix = "~/AppData/Roaming/helix"
-
-[yasb.files]
-yasb = "~/.config/yasb"
-
-[komorebi.files]
-komorebi = "~/"
-
-[whkd.files]
-whkd = "~/.config"
-
-[wezterm.files]
-wezterm = "~"
+yazi = "~/.config/yazi"

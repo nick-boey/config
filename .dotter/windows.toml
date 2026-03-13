@@ -1,0 +1,20 @@
+[nvim.files]
+nvim = "~/AppData/Local/nvim"
+
+[yazi.files]
+yazi = "~/AppData/Roaming/yazi/config"
+
+[helix.files]
+helix = "~/AppData/Roaming/helix"
+
+[yasb.files]
+yasb = "~/.config/yasb"
+
+[komorebi.files]
+komorebi = "~/"
+
+[whkd.files]
+whkd = "~/.config"
+
+[wezterm.files]
+wezterm = "~"
