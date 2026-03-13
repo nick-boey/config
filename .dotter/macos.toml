@@ -1,0 +1,8 @@
+[zsh.files]
+"zsh/.zshrc" = "~/.zshrc"
+
+[helix.files]
+helix = "~/.config/helix"
+
+[zed.files]
+zed = "~/.config/zed"
