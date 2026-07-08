@@ -134,6 +134,7 @@ function y() {
 #   gwta -b|--branch <branch>   branch mode, forced (e.g. a branch named "42")
 #   gwta <number>               PR mode (bare, all-digits arg)
 #   gwta -p|--pull-request <n>  PR mode, forced
+#   gwta ls | list              list origin branches + their open PRs
 #   gwta -h|--help              usage
 # The worktree is created at <repo-root>/../<slug> (all '/' in the branch name
 # replaced with '-') so worktrees sit as flat siblings of the main clone.
@@ -142,13 +143,81 @@ function y() {
 # (this runs after oh-my-zsh is sourced) so the name resolves to our function.
 # `gwt` (the plugin's `git worktree` alias) is deliberately left untouched.
 unalias gwta 2>/dev/null
+
+# Helper for `gwta ls` / `gwta list`: list origin branches, annotating those
+# that have an open same-repo PR. Branches with a PR sort to the top (newest PR
+# first); plain branches sort alphabetically at the bottom. The default branch
+# (origin HEAD) and fork PRs are omitted. Works without gh (branches only).
+function _gwta_list() {
+  emulate -L zsh
+  git rev-parse --show-toplevel >/dev/null 2>&1 || {
+    echo "gwta: not inside a git repository" >&2
+    return 1
+  }
+
+  # One round-trip to origin for every ref, including the HEAD symref.
+  local remote_refs
+  remote_refs="$(git ls-remote --symref origin 2>/dev/null)" || {
+    echo "gwta: could not reach origin" >&2
+    return 1
+  }
+
+  local default_branch
+  default_branch="$(print -r -- "$remote_refs" | \
+    awk '$1=="ref:" && $3=="HEAD"{s=$2; sub(/^refs\/heads\//,"",s); print s; exit}')"
+
+  local -a branches
+  branches=("${(@f)$(print -r -- "$remote_refs" | \
+    awk '$1!="ref:" && $2 ~ /^refs\/heads\//{s=$2; sub(/^refs\/heads\//,"",s); print s}')}")
+
+  # Map branch -> "<number>\t<title>" for open, same-repo PRs.
+  typeset -A prmap
+  if command -v gh >/dev/null 2>&1; then
+    local num br title
+    while IFS=$'\t' read -r num br title; do
+      [[ -n "$br" ]] && prmap[$br]="$num"$'\t'"$title"
+    done < <(gh pr list --state open --limit 300 \
+               --json number,headRefName,title,isCrossRepository \
+               --jq '.[] | select(.isCrossRepository == false) | "\(.number)\t\(.headRefName)\t\(.title)"' 2>/dev/null)
+  fi
+
+  # Partition branches into PR-annotated and plain, dropping the default branch.
+  typeset -A pr_display
+  local -a branch_only
+  local b n t
+  for b in $branches; do
+    [[ -z "$b" ]] && continue
+    [[ -n "$default_branch" && "$b" == "$default_branch" ]] && continue
+    if [[ -n "${prmap[$b]:-}" ]]; then
+      n="${prmap[$b]%%$'\t'*}"
+      t="${prmap[$b]#*$'\t'}"
+      pr_display[$n]="#$n [$b]: $t"
+    else
+      branch_only+=("[$b]")
+    fi
+  done
+
+  if [[ ${#pr_display} -eq 0 && ${#branch_only} -eq 0 ]]; then
+    echo "gwta: no branches on origin (besides its default)" >&2
+    return 0
+  fi
+
+  # PRs first, newest number first; then plain branches alphabetically.
+  local -a nums
+  nums=(${(kn)pr_display})   # keys, numeric ascending
+  nums=(${(Oa)nums})         # reverse -> descending
+  for n in $nums; do print -r -- "${pr_display[$n]}"; done
+  for b in ${(oi)branch_only}; do print -r -- "$b"; done
+}
+
 function gwta() {
   emulate -L zsh
-  local usage='usage: gwta <branch> | -b|--branch <branch> | <pr-number> | -p|--pull-request <n>'
+  local usage='usage: gwta <branch> | -b|--branch <branch> | <pr-number> | -p|--pull-request <n> | ls|list'
   local mode="" arg=""
 
   case "$1" in
     -h|--help)          echo "$usage"; return 0 ;;
+    ls|list)            _gwta_list; return $? ;;
     -b|--branch)        mode="branch"; arg="$2" ;;
     -p|--pull-request)  mode="pr";     arg="$2" ;;
     -*)                 echo "gwta: unknown option '$1'" >&2; echo "$usage" >&2; return 1 ;;
