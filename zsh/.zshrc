@@ -170,28 +170,41 @@ function _gwta_list() {
   branches=("${(@f)$(print -r -- "$remote_refs" | \
     awk '$1!="ref:" && $2 ~ /^refs\/heads\//{s=$2; sub(/^refs\/heads\//,"",s); print s}')}")
 
-  # Map branch -> "<number>\t<title>" for open, same-repo PRs.
+  # Map branch -> "<number>\t<isDraft>\t<title>" for open, same-repo PRs.
   typeset -A prmap
+  local draft=""   # declared once here so it stays local even when gh is absent
   if command -v gh >/dev/null 2>&1; then
     local num br title
-    while IFS=$'\t' read -r num br title; do
-      [[ -n "$br" ]] && prmap[$br]="$num"$'\t'"$title"
+    while IFS=$'\t' read -r num br draft title; do
+      [[ -n "$br" ]] && prmap[$br]="$num"$'\t'"$draft"$'\t'"$title"
     done < <(gh pr list --state open --limit 300 \
-               --json number,headRefName,title,isCrossRepository \
-               --jq '.[] | select(.isCrossRepository == false) | "\(.number)\t\(.headRefName)\t\(.title)"' 2>/dev/null)
+               --json number,headRefName,isDraft,title,isCrossRepository \
+               --jq '.[] | select(.isCrossRepository == false) | "\(.number)\t\(.headRefName)\t\(.isDraft)\t\(.title)"' 2>/dev/null)
+  fi
+
+  # Colour open (non-draft) PRs green on a terminal; drafts keep the default
+  # colour. GWTA_FORCE_COLOR forces colour on (e.g. for `gwta ls | less -R`).
+  local c_green="" c_reset=""
+  if [[ -t 1 || -n "${GWTA_FORCE_COLOR:-}" ]]; then
+    c_green=$'\e[32m'; c_reset=$'\e[0m'
   fi
 
   # Partition branches into PR-annotated and plain, dropping the default branch.
   typeset -A pr_display
   local -a branch_only
-  local b n t
+  local b n t rec rest   # 'draft' is already local from the PR read loop above
   for b in $branches; do
     [[ -z "$b" ]] && continue
     [[ -n "$default_branch" && "$b" == "$default_branch" ]] && continue
     if [[ -n "${prmap[$b]:-}" ]]; then
-      n="${prmap[$b]%%$'\t'*}"
-      t="${prmap[$b]#*$'\t'}"
-      pr_display[$n]="#$n [$b]: $t"
+      rec="${prmap[$b]}"
+      n="${rec%%$'\t'*}"; rest="${rec#*$'\t'}"
+      draft="${rest%%$'\t'*}"; t="${rest#*$'\t'}"
+      if [[ "$draft" == "true" ]]; then
+        pr_display[$n]="#$n [$b]: $t"                     # draft -> default colour
+      else
+        pr_display[$n]="${c_green}#$n [$b]: $t${c_reset}" # open  -> green
+      fi
     else
       branch_only+=("[$b]")
     fi
