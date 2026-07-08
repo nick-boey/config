@@ -6,3 +6,6 @@ helix = "~/.config/helix"
 
 [zed.files]
 zed = "~/.config/zed"
+
+[yazi.files]
+yazi = "~/.config/yazi"
