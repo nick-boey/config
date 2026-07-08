@@ -9,3 +9,6 @@ zed = "~/.config/zed"
 
 [yazi.files]
 yazi = "~/.config/yazi"
+
+[powershell.files]
+"powershell/Microsoft.PowerShell_profile.ps1" = "~/.config/powershell/Microsoft.PowerShell_profile.ps1"
