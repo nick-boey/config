@@ -184,15 +184,24 @@ function _gwta_list() {
 
   # Colour open (non-draft) PRs green on a terminal; drafts keep the default
   # colour. GWTA_FORCE_COLOR forces colour on (e.g. for `gwta ls | less -R`).
-  local c_green="" c_reset=""
+  local c_green="" c_reset="" c_bold=""
   if [[ -t 1 || -n "${GWTA_FORCE_COLOR:-}" ]]; then
-    c_green=$'\e[32m'; c_reset=$'\e[0m'
+    c_green=$'\e[32m'; c_reset=$'\e[0m'; c_bold=$'\e[1m'
   fi
 
-  # Partition branches into PR-annotated and plain, dropping the default branch.
-  typeset -A pr_display
-  local -a branch_only
-  local b n t rec rest   # 'draft' is already local from the PR read loop above
+  # Which origin branches have a local worktree checked out?
+  typeset -A has_worktree
+  local wl
+  while IFS= read -r wl; do
+    [[ "$wl" == "branch refs/heads/"* ]] && has_worktree[${wl#branch refs/heads/}]=1
+  done < <(git worktree list --porcelain 2>/dev/null)
+
+  # Partition into two groups (with / without a worktree), each split into
+  # PR-annotated rows (assoc: number -> line) and plain branches (array).
+  # Drop the default branch. 'draft' is already local from the PR read loop.
+  typeset -A wt_pr no_pr
+  local -a wt_plain no_plain
+  local b n t rec rest line
   for b in $branches; do
     [[ -z "$b" ]] && continue
     [[ -n "$default_branch" && "$b" == "$default_branch" ]] && continue
@@ -201,26 +210,40 @@ function _gwta_list() {
       n="${rec%%$'\t'*}"; rest="${rec#*$'\t'}"
       draft="${rest%%$'\t'*}"; t="${rest#*$'\t'}"
       if [[ "$draft" == "true" ]]; then
-        pr_display[$n]="#$n [$b]: $t"                     # draft -> default colour
+        line="#$n [$b]: $t"                     # draft -> default colour
       else
-        pr_display[$n]="${c_green}#$n [$b]: $t${c_reset}" # open  -> green
+        line="${c_green}#$n [$b]: $t${c_reset}" # open  -> green
       fi
+      if [[ -n "${has_worktree[$b]:-}" ]]; then wt_pr[$n]="$line"; else no_pr[$n]="$line"; fi
     else
-      branch_only+=("[$b]")
+      if [[ -n "${has_worktree[$b]:-}" ]]; then wt_plain+=("[$b]"); else no_plain+=("[$b]"); fi
     fi
   done
 
-  if [[ ${#pr_display} -eq 0 && ${#branch_only} -eq 0 ]]; then
+  if (( ${#wt_pr} + ${#wt_plain} + ${#no_pr} + ${#no_plain} == 0 )); then
     echo "gwta: no branches on origin (besides its default)" >&2
     return 0
   fi
 
-  # PRs first, newest number first; then plain branches alphabetically.
-  local -a nums
-  nums=(${(kn)pr_display})   # keys, numeric ascending
-  nums=(${(Oa)nums})         # reverse -> descending
-  for n in $nums; do print -r -- "${pr_display[$n]}"; done
-  for b in ${(oi)branch_only}; do print -r -- "$b"; done
+  # Build each group's ordered lines: PRs newest-number-first, then plain (alpha).
+  local -a wt_lines no_lines
+  local k
+  for k in ${(Onk)wt_pr}; do wt_lines+=("${wt_pr[$k]}"); done   # keys numeric-desc
+  for k in ${(oi)wt_plain}; do wt_lines+=("$k"); done           # plain, alpha
+  for k in ${(Onk)no_pr}; do no_lines+=("${no_pr[$k]}"); done
+  for k in ${(oi)no_plain}; do no_lines+=("$k"); done
+
+  local printed=0
+  if (( ${#wt_lines} )); then
+    print -r -- "${c_bold}Branches with worktrees${c_reset}"
+    print -rl -- "${wt_lines[@]}"
+    printed=1
+  fi
+  if (( ${#no_lines} )); then
+    (( printed )) && print
+    print -r -- "${c_bold}Branches without worktrees${c_reset}"
+    print -rl -- "${no_lines[@]}"
+  fi
 }
 
 function gwta() {

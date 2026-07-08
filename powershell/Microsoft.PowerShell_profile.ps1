@@ -49,31 +49,61 @@ function _gwta_list {
         }
     }
 
+    # Which origin branches have a local worktree checked out?
+    $hasWorktree = @{}
+    foreach ($line in (git worktree list --porcelain 2>$null)) {
+        if ($line -match '^branch refs/heads/(.+)$') { $hasWorktree[$Matches[1]] = $true }
+    }
+
     # Colour open (non-draft) PRs green on a terminal; drafts keep the default
     # colour. GWTA_FORCE_COLOR forces colour on (e.g. `gwta ls | less -R`).
     $useColor = $env:GWTA_FORCE_COLOR -or (-not [Console]::IsOutputRedirected)
     $esc = [char]27
     $green = if ($useColor) { "$esc[32m" } else { '' }
     $reset = if ($useColor) { "$esc[0m" } else { '' }
+    $bold = if ($useColor) { "$esc[1m" } else { '' }
 
-    # Partition branches, dropping the default branch.
-    $prRows = [System.Collections.Generic.List[object]]::new()
-    $branchOnly = [System.Collections.Generic.List[string]]::new()
+    # Partition into with/without worktree, each split into PR rows + plain.
+    $wtPr = [System.Collections.Generic.List[object]]::new()
+    $wtPlain = [System.Collections.Generic.List[string]]::new()
+    $noPr = [System.Collections.Generic.List[object]]::new()
+    $noPlain = [System.Collections.Generic.List[string]]::new()
     foreach ($b in $branches) {
         if ($defaultBranch -and $b -eq $defaultBranch) { continue }
-        if ($prMap.ContainsKey($b)) { $prRows.Add($prMap[$b]) } else { $branchOnly.Add($b) }
+        $wt = $hasWorktree.ContainsKey($b)
+        if ($prMap.ContainsKey($b)) {
+            if ($wt) { $wtPr.Add($prMap[$b]) } else { $noPr.Add($prMap[$b]) }
+        }
+        else {
+            if ($wt) { $wtPlain.Add($b) } else { $noPlain.Add($b) }
+        }
     }
 
-    if ($prRows.Count -eq 0 -and $branchOnly.Count -eq 0) {
+    if ($wtPr.Count -eq 0 -and $wtPlain.Count -eq 0 -and $noPr.Count -eq 0 -and $noPlain.Count -eq 0) {
         _gwta_err 'no branches on origin (besides its default)'; return
     }
 
-    # PRs first, newest number first; then plain branches alphabetically.
-    foreach ($pr in ($prRows | Sort-Object { [int]$_.number } -Descending)) {
-        $text = "#$($pr.number) [$($pr.headRefName)]: $($pr.title)"
-        if ($pr.isDraft) { $text } else { "$green$text$reset" }
+    # Order a group's lines: PRs newest-number-first (open ones green), then plain (alpha).
+    $emit = {
+        param($rows, $plain)
+        foreach ($pr in ($rows | Sort-Object { [int]$_.number } -Descending)) {
+            $text = "#$($pr.number) [$($pr.headRefName)]: $($pr.title)"
+            if ($pr.isDraft) { $text } else { "$green$text$reset" }
+        }
+        foreach ($b in ($plain | Sort-Object)) { "[$b]" }
     }
-    foreach ($b in ($branchOnly | Sort-Object)) { "[$b]" }
+
+    $printed = $false
+    if ($wtPr.Count -or $wtPlain.Count) {
+        "$bold" + 'Branches with worktrees' + "$reset"
+        & $emit $wtPr $wtPlain
+        $printed = $true
+    }
+    if ($noPr.Count -or $noPlain.Count) {
+        if ($printed) { '' }
+        "$bold" + 'Branches without worktrees' + "$reset"
+        & $emit $noPr $noPlain
+    }
 }
 
 function gwta {
