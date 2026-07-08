@@ -1,3 +1,10 @@
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+fpath=("/Users/nboey/.oh-my-zsh/custom/completions" $fpath)
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
@@ -78,6 +85,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# Show full path in prompt instead of just folder name
+PROMPT='%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ ) %{$fg[cyan]%}%~%{$reset_color%} $(git_prompt_info)'
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -118,9 +128,147 @@ function y() {
   rm -f -- "$tmp"
 }
 
+# Git Worktree Add — create (or refuse a duplicate) a worktree for a remote
+# branch or a GitHub PR, then cd into it.
+#   gwta <branch>               branch mode (bare, non-numeric arg)
+#   gwta -b|--branch <branch>   branch mode, forced (e.g. a branch named "42")
+#   gwta <number>               PR mode (bare, all-digits arg)
+#   gwta -p|--pull-request <n>  PR mode, forced
+#   gwta -h|--help              usage
+# The worktree is created at <repo-root>/../<slug> (all '/' in the branch name
+# replaced with '-') so worktrees sit as flat siblings of the main clone.
+#
+# The oh-my-zsh git plugin aliases `gwta` to `git worktree add`; drop that alias
+# (this runs after oh-my-zsh is sourced) so the name resolves to our function.
+# `gwt` (the plugin's `git worktree` alias) is deliberately left untouched.
+unalias gwta 2>/dev/null
+function gwta() {
+  emulate -L zsh
+  local usage='usage: gwta <branch> | -b|--branch <branch> | <pr-number> | -p|--pull-request <n>'
+  local mode="" arg=""
+
+  case "$1" in
+    -h|--help)          echo "$usage"; return 0 ;;
+    -b|--branch)        mode="branch"; arg="$2" ;;
+    -p|--pull-request)  mode="pr";     arg="$2" ;;
+    -*)                 echo "gwta: unknown option '$1'" >&2; echo "$usage" >&2; return 1 ;;
+    *)                  arg="$1" ;;
+  esac
+
+  if [[ -z "$arg" ]]; then
+    echo "gwta: missing branch/PR argument" >&2
+    echo "$usage" >&2
+    return 1
+  fi
+
+  # Auto-detect: a bare all-digits argument means a PR number.
+  if [[ -z "$mode" ]]; then
+    if [[ "$arg" =~ '^[0-9]+$' ]]; then mode="pr"; else mode="branch"; fi
+  fi
+
+  # Must be inside a git repository.
+  local root
+  root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+    echo "gwta: not inside a git repository" >&2
+    return 1
+  }
+
+  # Resolve the branch name.
+  local branch
+  if [[ "$mode" == "pr" ]]; then
+    if ! command -v gh >/dev/null 2>&1; then
+      echo "gwta: gh (GitHub CLI) is required for PR mode" >&2
+      return 1
+    fi
+    local prdata
+    prdata="$(gh pr view "$arg" --json headRefName,isCrossRepository \
+      --jq '.headRefName + "\t" + (.isCrossRepository|tostring)' 2>/dev/null)" || {
+      echo "gwta: could not look up PR #$arg" >&2
+      return 1
+    }
+    branch="${prdata%%$'\t'*}"
+    local cross="${prdata##*$'\t'}"
+    if [[ "$cross" == "true" ]]; then
+      echo "gwta: PR #$arg is from a fork (cross-repository); not supported" >&2
+      return 1
+    fi
+    if [[ -z "$branch" ]]; then
+      echo "gwta: could not determine branch for PR #$arg" >&2
+      return 1
+    fi
+    echo "gwta: PR #$arg -> branch '$branch'"
+  else
+    branch="$arg"
+  fi
+
+  # Compute the destination: a flat sibling of the repo root.
+  local slug="${branch//\//-}"
+  local dest="${root:h}/$slug"
+
+  # Refuse if a worktree already exists for this branch or the path is taken.
+  if git worktree list --porcelain | grep -qxF "branch refs/heads/$branch"; then
+    echo "gwta: a worktree for '$branch' already exists (see: git worktree list)" >&2
+    return 1
+  fi
+  if [[ -e "$dest" ]]; then
+    echo "gwta: destination '$dest' already exists" >&2
+    return 1
+  fi
+
+  # Pull the branch from origin.
+  if ! git fetch origin "$branch" 2>/dev/null; then
+    echo "gwta: branch '$branch' not found on origin" >&2
+    return 1
+  fi
+  if ! git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+    echo "gwta: 'origin/$branch' not found after fetch" >&2
+    return 1
+  fi
+
+  # Create the worktree (reuse an existing local branch if there is one).
+  if git show-ref --verify --quiet "refs/heads/$branch"; then
+    git worktree add "$dest" "$branch" || return 1
+  else
+    git worktree add --track -b "$branch" "$dest" "origin/$branch" || return 1
+  fi
+
+  builtin cd "$dest" && echo "gwta: switched to worktree at $dest"
+}
+
 # Zoxide — smarter cd
 eval "$(zoxide init zsh)"
 
 # Claude Code aliases
-alias ccd='claude --dangerously-skip-permissions'
-alias ccdc='claude --dangerously-skip-permissions --continue'
+alias ccd='claude --dangerously-skip-permissions --remote-control'
+
+# Add dotnet tools
+export PATH="$PATH:/Users/nboey/.dotnet/tools"
+
+# Add Avalonia license key
+export AVALONIA_LICENSE_KEY=avln_off_key:v1:AQAAAMMAAAAfiwgAAAAAAAADbY67CgJBDEWzaKFWdj5A8QdWRAVhO1GwshOtszNRB4fJkswqdn66KGqzprnhnARuAgDTBrynPptO5q/l+Fh0X5kAQA3DvQUAA7yi5+AwRWPIk2Ck1LtcUBxpZ/mx4xWHKOx1vCXrsFflB8r3jm79Px8oF8u30K2q1Rkl6rAqdkK0xogbcbbzq1igGPKp4aDsafTjlq7kuSBJI7PX70G7ELaliVleqguk2iwVT5SpvTwBXTCkQyABAAAAAQAATNXZsPNvlPPA41ERijdBZHYhjjV3FTVDXAodpU5fr3cC3hZB5+rxdKkAVGpuzyvbQRS3FK78NfbZ7MCbuahfJONZTN4P5/Nwvt/4O7QLLEC+70VSg3mX58f5KpC1/UYQcZN+sqN+qIrnKfl9pBL/BoRMWhlueFR0I+1Xy0dNfnvgPtDT739jknxYRCHBGU5ADr5cBcxZpW5P9vY9K3Wv1a73arjD1nFMdvWqiBx1I3LDswc2x2Q0zSJKkaglbTaOcdTiDtNrI0hmdWIi+l09wYs+H2EhqiLB1k7SXFv92CmKbLQDNBzr7cZ0xSdCK6DJSK7Z+xIvUSuPSXjOwDYbGw==:AQAAAMkAAAAfiwgAAAAAAAADbY5BawJBDIUj9lAKgjetUOkf2EVsoeCtKHjqTew5O/O0Q6eTJZlVvPnTxaJe1lxe+L4EXoeIpo/0Pw9v08n7edkcP4bn7BBRl9PhiYheeMdRUuCCnUOEckYRQ6WsATb4vNhyLimrRCu/4AM/t/k3qnXAfnTng/XXyz4N22r+w5pt3BYrBRaceanBD24Va1aHWDhJJhGvN+6xQ5QaWmSRaNeDfq3iG5dnVWMhwazXGG8x0ybl8IcTjBmX6CQBAAAAAQAAZCxLq29/OysHSf9idulCR/ToFF73oFBhbD/DP0MNWpyR0CQuSfkXMQN0bCIl62epToMap1/EuObHUhvw6ZsTZueIODU/Evi6bsf2+iERrbQZaqSQA36Po3/Ch0zVm9Z/XqfJHVJ5vNin/4sFmgrq2ovNVCRn8EAfPUxz8xZnUrizFHv28WxLt8KHFzvb5e0RenmEmDGCoEBwkm7a18RV7JjS83StEh6oDyo9OMORLTYnATgenEI1k5kedRQXQchDSF8Ru1eaYVslov6UHGWFS0bhMN1/T/aXgslJCfoeJEiInaxU/h7Uw3VJc+8SjfgnR/9rQOUTZ7BcX9cif0mo7g==
+
+# Added by get-aspire-cli.sh
+export PATH="$HOME/.aspire/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+export EDITOR="nvim"
+
+# pnpm
+export PNPM_HOME="/Users/nboey/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+export CHROMATIC_PROJECT_TOKEN="chpt_b506e7b703c381f"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/nboey/.local/bin:$PATH"
+
+# pnpm global package binaries (added by cyrus-setup)
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
