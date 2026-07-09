@@ -5,6 +5,7 @@ show_symlink = true
 [opener]
 edit = [
   { run = '$EDITOR "$@"', block = true, for = "unix" },
+  { run = '$EDITOR "$@"', block = true, for = "macos" },
   { run = 'nvim.exe %*', block = true, desc = "windows", for = "windows" },
 ]
 
