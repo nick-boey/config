@@ -1,3 +1,7 @@
+{{{{raw}}}}
+# Managed by dotter. In the repo, the config below is wrapped in a Handlebars
+# raw block so dotter's templater leaves oh-my-posh's brace syntax intact
+# on Windows (copy/template mode, no symlinks). Edit the config normally.
 console_title_template = '{{ .Shell }} in {{ .Folder }}'
 version = 4
 final_space = true
@@ -87,3 +91,4 @@ final_space = true
 
   [tooltips.options]
     display_default = true
+{{{{/raw}}}}
