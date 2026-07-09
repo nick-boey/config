@@ -1,20 +1,14 @@
-# TODO
-# Helix
+[bash.files]
+"bash/.bashrc" = "~/.bashrc"
 
-[gh.files]
-gh = "~/.config/gh"
+[helix.files]
+helix = "~/.config/helix"
 
 [hypr.files]
 hypr = "~/.config/hypr"
 
 [kitty.files]
 kitty = "~/.config/kitty"
-
-[lazygit.files]
-lazygit = "~/.config/lazygit"
-
-[nvim.files]
-nvim = "~/.config/nvim"
 
 [wal.files]
 wal = "~/.config/wal"
@@ -24,9 +18,6 @@ waybar = "~/.config/waybar"
 
 [yay.files]
 yay = "~/.config/yay"
-
-[yazi.files]
-yazi = "~/.config/yazi"
 
 [zed.files]
 zed = "~/.config/zed"
