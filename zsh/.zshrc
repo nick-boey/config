@@ -366,9 +366,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# CHROMATIC_PROJECT_TOKEN now lives in ~/.zshrc.local (untracked)
-
-
 # Added by Antigravity CLI installer
 export PATH="/Users/nboey/.local/bin:$PATH"
 
