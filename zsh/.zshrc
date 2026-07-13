@@ -366,9 +366,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-export CHROMATIC_PROJECT_TOKEN="chpt_b506e7b703c381f"
-
-
 # Added by Antigravity CLI installer
 export PATH="/Users/nboey/.local/bin:$PATH"
 
