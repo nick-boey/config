@@ -1,12 +1,15 @@
-[manager]
+# Section renamed from [manager] to [mgr] in yazi 25.x.
+[mgr]
 show_hidden = true
 show_symlink = true
 
 [opener]
+# Placeholders are %s (all selected) / %s1 (first) on every platform.
+# The old "$@" / %* forms are not substituted by current yazi, which is why
+# the editor used to launch with no file. "unix" already covers macOS.
 edit = [
-  { run = '$EDITOR "$@"', block = true, for = "unix" },
-  { run = '$EDITOR "$@"', block = true, for = "macos" },
-  { run = 'nvim.exe %*', block = true, desc = "windows", for = "windows" },
+  { run = '${EDITOR:-nvim} %s', desc = "$EDITOR", block = true, for = "unix" },
+  { run = 'nvim.exe %s', desc = "nvim", block = true, for = "windows" },
 ]
 
 [open]

@@ -33,12 +33,17 @@ formulae=(
   helix
   zoxide
   7zip
+  gh
+  ripgrep
+  git-lfs
+  shellcheck
+  dotter
 )
 
 # GUI casks
 casks=(
   visual-studio-code
-  docker
+  docker-desktop
   figma
   steam
   spotify
@@ -47,6 +52,14 @@ casks=(
   rustrover
   ghostty
   zed
+  nikitabobko/tap/aerospace
+  zotero
+  microsoft-teams
+  maccy
+  pika
+  blender
+  affinity
+  tailscale-app
 )
 
 failed=()
@@ -63,6 +76,10 @@ for formula in "${formulae[@]}"; do
   fi
   echo ""
 done
+
+# AeroSpace lives in a third-party tap, which Homebrew now requires trusting.
+brew tap nikitabobko/tap
+brew trust nikitabobko/tap || true
 
 echo "Installing casks..."
 for cask in "${casks[@]}"; do

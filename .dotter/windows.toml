@@ -1,11 +1,14 @@
-[nvim.files]
-nvim = "~/AppData/Local/nvim"
-
 [yazi.files]
 yazi = "~/AppData/Roaming/yazi/config"
 
 [helix.files]
 helix = "~/AppData/Roaming/helix"
+
+[gh.files]
+gh = "~/AppData/Roaming/GitHub CLI"
+
+[lazygit.files]
+lazygit = "~/AppData/Roaming/lazygit"
 
 [yasb.files]
 yasb = "~/.config/yasb"
@@ -18,3 +21,11 @@ whkd = "~/.config"
 
 [wezterm.files]
 wezterm = "~"
+
+[windows-terminal.files]
+"windows terminal/settings.json" = "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+
+# If Documents is redirected by OneDrive Known Folder Move, point this at
+# ~/OneDrive/Documents/PowerShell instead. Check with `Split-Path $PROFILE`.
+[powershell.files]
+"powershell/Microsoft.PowerShell_profile.ps1" = "~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1"

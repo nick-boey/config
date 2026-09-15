@@ -344,13 +344,11 @@ function gwta() {
 eval "$(zoxide init zsh)"
 
 # Claude Code aliases
-alias ccd='claude --dangerously-skip-permissions --remote-control'
+alias ccd='claude --remote-control'
 
 # Add dotnet tools
 export PATH="$PATH:/Users/nboey/.dotnet/tools"
 
-# Add Avalonia license key
-# AVALONIA_LICENSE_KEY now lives in ~/.zshrc.local (untracked)
 
 # Added by get-aspire-cli.sh
 export PATH="$HOME/.aspire/bin:$PATH"
@@ -366,7 +364,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# CHROMATIC_PROJECT_TOKEN now lives in ~/.zshrc.local (untracked)
 
 
 # Added by Antigravity CLI installer
@@ -377,3 +374,8 @@ case ":$PATH:" in
   *":$PNPM_HOME/bin:"*) ;;
   *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
+
+export PATH="/Users/nboey/.bun/bin:$PATH"
+
+# Machine-local secrets / env (API keys, license keys). Never committed.
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

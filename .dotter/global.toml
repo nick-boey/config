@@ -1,11 +1,4 @@
-[gh.files]
-gh = "~/.config/gh"
-
-[lazygit.files]
-lazygit = "~/.config/lazygit"
-
-[nvim.files]
-nvim = "~/.config/nvim"
-
-[yazi.files]
-yazi = "~/.config/yazi"
+# Every path this repo deploys to is OS-specific (macOS and Linux use
+# ~/.config, Windows uses AppData), so there is nothing truly global.
+# All mappings live in macos.toml / linux.toml / windows.toml; pick one
+# via `includes` in .dotter/local.toml.

@@ -1,0 +1,29 @@
+# Ghostty — macOS terminal.
+# Kept deliberately in step with wezterm/.wezterm.lua (the Windows terminal):
+# same theme, same background, same CTRL+SHIFT pane bindings, so muscle
+# memory carries across machines.
+
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 15
+
+theme = JetBrains Darcula
+background = 1f1f1f
+
+window-padding-x = 8
+window-padding-y = 8
+
+# Match wezterm's hide_tab_bar_if_only_one_tab.
+window-show-tab-bar = auto
+
+# Splits, mirroring the wezterm keys.
+keybind = ctrl+shift+i=new_split:right
+keybind = ctrl+shift+o=new_split:down
+keybind = ctrl+shift+q=close_surface
+
+# hjkl pane navigation.
+keybind = ctrl+shift+h=goto_split:left
+keybind = ctrl+shift+j=goto_split:down
+keybind = ctrl+shift+k=goto_split:up
+keybind = ctrl+shift+l=goto_split:right
+
+keybind = f11=toggle_fullscreen

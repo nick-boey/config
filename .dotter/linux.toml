@@ -16,8 +16,23 @@ wal = "~/.config/wal"
 [waybar.files]
 waybar = "~/.config/waybar"
 
+[wofi.files]
+wofi = "~/.config/wofi"
+
 [yay.files]
 yay = "~/.config/yay"
 
+[yazi.files]
+yazi = "~/.config/yazi"
+
 [zed.files]
 zed = "~/.config/zed"
+
+[gh.files]
+gh = "~/.config/gh"
+
+[lazygit.files]
+lazygit = "~/.config/lazygit"
+
+[kde.files]
+"kde.org" = "~/.config/kde.org"

@@ -6,7 +6,7 @@ This repository contains personal configuration files (dotfiles) for various dev
 
 **Type**: Dotfiles/Configuration repository  
 **Primary Purpose**: Cross-platform configuration management using dotter  
-**Platforms**: Windows (primary), Linux (Arch-based)  
+**Platforms**: Windows, macOS, Linux (Arch-based)  
 **Configuration Manager**: [dotter](https://github.com/SuperCuber/dotter)
 
 ## Directory Structure
@@ -14,12 +14,14 @@ This repository contains personal configuration files (dotfiles) for various dev
 ```
 config/
 ├── .dotter/              # Dotter configuration files
-│   ├── global.toml      # Windows-specific file mappings
-│   ├── linux.toml       # Linux-specific file mappings
+│   ├── global.toml      # Intentionally empty (all paths are OS-specific)
+│   ├── macos.toml       # macOS file mappings
+│   ├── linux.toml       # Linux file mappings
+│   ├── windows.toml     # Windows file mappings
 │   └── cache.toml       # Auto-generated cache (git-ignored)
-├── nvim/                # Neovim configuration (LazyVim-based)
 ├── helix/               # Helix editor configuration
-├── wezterm/             # WezTerm terminal configuration
+├── wezterm/             # WezTerm terminal configuration (Windows)
+├── ghostty/             # Ghostty terminal configuration (macOS)
 ├── komorebi/            # Komorebi window manager (Windows)
 ├── hypr/                # Hyprland configuration (Linux)
 ├── waybar/              # Waybar status bar (Linux)
@@ -27,7 +29,9 @@ config/
 ├── yazi/                # Yazi file manager
 ├── lazygit/             # LazyGit configuration
 ├── gh/                  # GitHub CLI configuration
-└── install.ps1          # Windows software installation script
+├── aerospace/           # AeroSpace window manager (macOS)
+├── install-macos.sh     # macOS software installation script (Homebrew)
+└── install-windows.ps1  # Windows software installation script (winget)
 ```
 
 ## Build/Lint/Test Commands
@@ -39,9 +43,9 @@ This is a configuration repository without traditional build/test commands. Key 
 # Deploy configurations (run from repository root)
 dotter deploy
 
-# Deploy with specific profile
-dotter deploy -p linux
-dotter deploy -p windows
+# Which OS mappings apply is set per-machine in .dotter/local.toml
+# (git-ignored) via `includes`, not by a command-line flag:
+#   includes = [".dotter/macos.toml"]   # or linux.toml / windows.toml
 ```
 
 ### Manual Testing
@@ -55,8 +59,8 @@ Test individual configurations by:
 # Check TOML syntax
 # Use editor LSP or tools like taplo
 
-# Check Lua syntax (for nvim/wezterm)
-lua -c "dofile('nvim/init.lua')"
+# Check Lua syntax (wezterm)
+lua -c "dofile('wezterm/.wezterm.lua')"
 
 # Check shell scripts
 shellcheck waybar/scripts/*.sh
@@ -79,24 +83,23 @@ shellcheck waybar/scripts/*.sh
 
 ```toml
 # Good
-[nvim.files]
-nvim = "~/.config/nvim"
+[helix.files]
+helix = "~/.config/helix"
 
 [yazi.files]
 yazi = "~/.config/yazi"
 
 # Avoid
-[nvim.files]
-nvim="~/.config/nvim"
+[helix.files]
+helix="~/.config/helix"
 [yazi.files]
 yazi="~/.config/yazi"
 ```
 
-#### Lua Files (nvim/, wezterm/)
+#### Lua Files (wezterm/)
 - **Indentation**: 2 spaces (enforced by stylua)
 - **Line width**: 120 characters max
 - **Quotes**: Prefer single quotes for strings
-- **Formatting**: Use stylua with config in `nvim/stylua.toml`
 - **Tables**: Trailing commas in multiline tables
 
 ```lua
@@ -128,7 +131,7 @@ if [ $selected_wallpaper = "$ASSETS/main.png" ]; then
 fi
 ```
 
-#### PowerShell Scripts (install.ps1)
+#### PowerShell Scripts (install-windows.ps1, powershell/)
 - PascalCase for variables: `$PackageString`, `$SoftwareList`
 - 4-space indentation
 - Use try-catch for error handling
@@ -161,7 +164,7 @@ try {
 
 - **Files**: Use lowercase with hyphens or underscores
   - Config files: `config.toml`, `config.yml`
-  - Scripts: `select.sh`, `refresh.sh`, `install.ps1`
+  - Scripts: `select.sh`, `refresh.sh`, `install-windows.ps1`
 - **Directories**: Lowercase, match application name
 - **Variables (Lua)**: snake_case
 - **Variables (PowerShell)**: PascalCase
@@ -174,8 +177,10 @@ try {
 1. Create directory matching application name
 2. Add configuration files
 3. Update appropriate dotter TOML file:
-   - `.dotter/global.toml` for Windows
+   - `.dotter/macos.toml` for macOS
    - `.dotter/linux.toml` for Linux
+   - `.dotter/windows.toml` for Windows
+   (`global.toml` stays empty: every target path differs per OS)
 4. Test with `dotter deploy`
 5. Commit with message format: "Add [app] config"
 
@@ -201,6 +206,13 @@ Example commit messages (from history):
 - Status bar: YASB
 - Terminal: WezTerm
 
+### macOS
+- Use bash/zsh for scripts
+- Configurations in `~/.config/`, except apps that use
+  `~/Library/Application Support/` (e.g. lazygit)
+- Window manager: AeroSpace
+- Terminal: Ghostty (kept in step with wezterm/: same theme and pane keys)
+
 ### Linux
 - Use bash for scripts
 - Configurations in `~/.config/`
@@ -221,12 +233,23 @@ Example commit messages (from history):
 2. **Line endings**: Maintain consistent CRLF (Windows) or LF (Linux)
 3. **Case sensitivity**: Remember Linux filesystems are case-sensitive
 4. **Dotter cache**: Regenerate after manual file moves with `dotter deploy`
-5. **Application-specific**: Some apps auto-format configs (e.g., zed/settings.json)
+5. **Application-specific**: Some apps auto-format configs (e.g., zed/settings.json).
+   These rewrite the deployed file in place; since it is a symlink back here,
+   the repo picks the change up — review it before committing rather than
+   reverting it.
+6. **Ghostty reads two paths on macOS**: `~/.config/ghostty/config` (this
+   repo) and `~/Library/Application Support/com.mitchellh.ghostty/config.ghostty`.
+   The Application Support one is loaded **second and wins**. Ghostty recreates
+   it as an empty file, which is inert — but if it ever gains content it will
+   silently override this repo. Keep it empty; edit `ghostty/config` here.
+   (`ghostty +edit-config` correctly opens the repo file.)
+7. **Secrets**: never commit API keys or license keys. They belong in
+   `~/.zshrc.local` (zsh) or `local.ps1` next to `$PROFILE` (PowerShell),
+   both sourced at the end of the committed profile.
 
 ## Tools and Dependencies
 
 - **dotter**: Configuration deployment
-- **nvim**: LazyVim-based Neovim setup
 - **helix**: Alternative modal editor
 - **stylua**: Lua formatter
 - **shellcheck**: Shell script linter (recommended)

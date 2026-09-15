@@ -12,19 +12,27 @@ Valve.Steam,
 wez.wezterm,
 Helix.Helix,
 Neovim.Neovim,
-sxyazi.yazi
+sxyazi.yazi,
 Spotify.Spotify,
 Rustlang.Rustup,
-MikTex.MikTex,
+MiKTeX.MiKTeX,
 JesseDuffield.lazygit,
 Typst.Typst,
-ajeetdsouze.zoxide,
+ajeetdsouza.zoxide,
 Obsidian.Obsidian,
 junegunn.fzf,
 sharkdp.fd,
 Python.Python.3.13,
 7zip.7zip,
 Git.Git,
+GitHub.cli,
+BurntSushi.ripgrep.MSVC,
+LGUG2Z.komorebi,
+LGUG2Z.whkd,
+AmN.yasb,
+Microsoft.WindowsTerminal,
+DigitalScholar.Zotero,
+Microsoft.Teams,
 "
 
 $Delimiter = ","
@@ -63,3 +71,8 @@ foreach ($Software in $SoftwareList) {
 }
 
 Write-Host "Winget package installation process completed."
+
+# dotter (the config deployer this repo uses) is not on winget.
+Write-Host "Installing dotter via cargo..."
+cargo install dotter
+

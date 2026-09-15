@@ -10,5 +10,17 @@ zed = "~/.config/zed"
 [yazi.files]
 yazi = "~/.config/yazi"
 
+[gh.files]
+gh = "~/.config/gh"
+
+[lazygit.files]
+lazygit = "~/Library/Application Support/lazygit"
+
+[ghostty.files]
+ghostty = "~/.config/ghostty"
+
+[aerospace.files]
+"aerospace/.aerospace.toml" = "~/.aerospace.toml"
+
 [powershell.files]
 "powershell/Microsoft.PowerShell_profile.ps1" = "~/.config/powershell/Microsoft.PowerShell_profile.ps1"

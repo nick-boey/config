@@ -1,0 +1,11 @@
+# Only settings that differ from lazygit's defaults live here; everything else
+# is inherited. Check defaults with `lazygit --config`.
+#
+# The editor is deliberately NOT set here: lazygit picks it up from $EDITOR,
+# which zsh/.zshrc and the PowerShell profile both set to nvim.
+
+gui:
+  # This repo ships JetBrainsMono Nerd Font (.fonts/) and both terminals are
+  # configured to use it, so the glyph icons will render.
+  nerdFontsVersion: "3"
+  showRandomTip: false

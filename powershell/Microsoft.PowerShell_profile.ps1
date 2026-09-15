@@ -190,3 +190,14 @@ function gwta {
     Set-Location -LiteralPath $dest
     Write-Host "gwta: switched to worktree at $dest"
 }
+
+# --- editor -----------------------------------------------------------------
+# Mirrors EDITOR=nvim in zsh/.zshrc. lazygit, git and yazi all resolve their
+# editor from this rather than each carrying their own setting.
+$env:EDITOR = 'nvim'
+
+# --- machine-local secrets / env ---------------------------------------------
+# Same role as ~/.zshrc.local: API keys and license keys live next to the
+# profile, never in this repo.
+$LocalProfile = Join-Path (Split-Path -Parent $PROFILE) 'local.ps1'
+if (Test-Path -LiteralPath $LocalProfile) { . $LocalProfile }
