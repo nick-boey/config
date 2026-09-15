@@ -1,5 +1,6 @@
 # PowerShell profile — deployed via dotter to
-#   ~/.config/powershell/Microsoft.PowerShell_profile.ps1
+#   Windows: ~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1
+#   macOS:   ~/.config/powershell/Microsoft.PowerShell_profile.ps1
 
 # --- gwta: Git Worktree Add --------------------------------------------------
 # Create (or refuse a duplicate) a worktree for a remote branch or a GitHub PR,
@@ -191,13 +192,56 @@ function gwta {
     Write-Host "gwta: switched to worktree at $dest"
 }
 
-# --- editor -----------------------------------------------------------------
-# Mirrors EDITOR=nvim in zsh/.zshrc. lazygit, git and yazi all resolve their
-# editor from this rather than each carrying their own setting.
-$env:EDITOR = 'nvim'
+$Env:YAZI_FILE_ONE = 'C:\Program Files\Git\usr\bin\file.exe'
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
-# --- machine-local secrets / env ---------------------------------------------
-# Same role as ~/.zshrc.local: API keys and license keys live next to the
-# profile, never in this repo.
-$LocalProfile = Join-Path (Split-Path -Parent $PROFILE) 'local.ps1'
-if (Test-Path -LiteralPath $LocalProfile) { . $LocalProfile }
+function y {
+    $tmp = [System.IO.Path]::GetTempFileName()
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp -Encoding UTF8
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+        Set-Location -LiteralPath ([System.IO.Path]::GetFullPath($cwd))
+    }
+    Remove-Item -Path $tmp
+}
+
+function kswitch{
+    komorebic stop
+    komorebic start --whkd
+    exit
+  }
+
+function ccd {
+    claude --dangerously-skip-permissions --remote-control
+}
+
+function ccdc {
+    claude --dangerously-skip-permissions --continue
+}
+
+function rmnul {
+    $nulPath = "\\?\$($PWD.Path)\nul"
+    if ([System.IO.File]::Exists($nulPath)) {
+        [System.IO.File]::Delete($nulPath)
+    }
+}
+
+Set-Alias brush "C:\Users\nboey\Documents\src\computer-vision\brush\target\release\brush_app.exe"
+Set-Alias colmap "C:\Users\nboey\Documents\src\computer-vision\colmap-bin\COLMAP.bat"
+Set-Alias glomap "C:\Users\nboey\AppData\Local\GLOMAP\glomap.exe"
+
+Set-PSReadLineKeyHandler -Chord "Shift+Tab" -Function ForwardWord
+
+$env:EDITOR = "nvim.exe"
+$env:ENABLE_LSP_TOOL = 1
+
+# Machine-local secrets (gitignored, not committed) — e.g. the GitHub PAT.
+# Kept out of this (public) repo; lives beside the profile as secrets.ps1.
+$secretsFile = Join-Path (Split-Path -Parent $PROFILE) 'secrets.ps1'
+if (Test-Path $secretsFile) { . $secretsFile }
+
+oh-my-posh init pwsh --config ~/.omp/nick.omp.toml | Invoke-Expression
+
+# OPENSPEC:START - OpenSpec completion (managed block, do not edit manually)
+. "C:\Users\nboey\Documents\PowerShell\OpenSpecCompletion.ps1"
+# OPENSPEC:END

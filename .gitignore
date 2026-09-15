@@ -2,5 +2,8 @@
 .dotter/cache.toml
 .dotter/cache
 
+# Machine-local PowerShell secrets (GitHub PAT, etc.) — never commit
+powershell/secrets.ps1
+
 # macOS cruft
 .DS_Store

@@ -25,7 +25,10 @@ wezterm = "~"
 [windows-terminal.files]
 "windows terminal/settings.json" = "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
 
-# If Documents is redirected by OneDrive Known Folder Move, point this at
-# ~/OneDrive/Documents/PowerShell instead. Check with `Split-Path $PROFILE`.
+# Deploys the whole directory, so secrets.ps1 (git-ignored) sits beside the
+# profile where it expects to find it.
 [powershell.files]
-"powershell/Microsoft.PowerShell_profile.ps1" = "~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1"
+powershell = "~/Documents/PowerShell"
+
+[ohmyposh.files]
+ohmyposh = "~/.omp"
