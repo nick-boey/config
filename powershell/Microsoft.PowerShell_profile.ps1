@@ -192,7 +192,9 @@ function gwta {
     Write-Host "gwta: switched to worktree at $dest"
 }
 
-$Env:YAZI_FILE_ONE = 'C:\Program Files\Git\usr\bin\file.exe'
+# yazi shells out to `file`; Windows has no native one, so point at Git's bundled copy.
+# macOS already has /usr/bin/file on PATH, so nothing to set there.
+if ($IsWindows) { $Env:YAZI_FILE_ONE = 'C:\Program Files\Git\usr\bin\file.exe' }
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
 function y {
@@ -232,7 +234,7 @@ Set-Alias glomap "C:\Users\nboey\AppData\Local\GLOMAP\glomap.exe"
 
 Set-PSReadLineKeyHandler -Chord "Shift+Tab" -Function ForwardWord
 
-$env:EDITOR = "nvim.exe"
+$env:EDITOR = "nvim"
 $env:ENABLE_LSP_TOOL = 1
 
 # Machine-local secrets (gitignored, not committed) — e.g. the GitHub PAT.
@@ -240,8 +242,13 @@ $env:ENABLE_LSP_TOOL = 1
 $secretsFile = Join-Path (Split-Path -Parent $PROFILE) 'secrets.ps1'
 if (Test-Path $secretsFile) { . $secretsFile }
 
-oh-my-posh init pwsh --config ~/.omp/nick.omp.toml | Invoke-Expression
+# oh-my-posh is only deployed to ~/.omp on Windows (.dotter/windows.toml); macOS
+# uses oh-my-zsh's prompt instead, so skip if the binary isn't there.
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    oh-my-posh init pwsh --config ~/.omp/nick.omp.toml | Invoke-Expression
+}
 
 # OPENSPEC:START - OpenSpec completion (managed block, do not edit manually)
-. "C:\Users\nboey\Documents\PowerShell\OpenSpecCompletion.ps1"
+$openSpecCompletion = "C:\Users\nboey\Documents\PowerShell\OpenSpecCompletion.ps1"
+if (Test-Path $openSpecCompletion) { . $openSpecCompletion }
 # OPENSPEC:END
